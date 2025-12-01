@@ -19,8 +19,8 @@ public struct Flag<Value: FlagProtocol>: FeatureFlagConfigurableProtocol, Identi
     
     public typealias ComputedFlagClosure = (() -> Value?)
     
-    private class DefaultValueBox<Value> {
-        var value: Value?
+    private class DefaultValueBox<V> {
+        var value: V?
     }
     
     // MARK: - Public Properties
@@ -79,8 +79,7 @@ public struct Flag<Value: FlagProtocol>: FeatureFlagConfigurableProtocol, Identi
     /// If you need to override the behaviour by setting your own key pass `key` to init function.
     public var keyPath: FlagKeyPath {
         // swiftlint:disable force_unwrapping
-        let currentKeyPath = (fixedKey ?? loader.propertyName,
-                              (fixedKey == nil ? loader.instance!.keyConfiguration : KeyConfiguration(keyTransform: .none)))
+        let currentKeyPath = (fixedKey, KeyConfiguration(keyTransform: .none))
         let fullPath: [KeyPathAndConfig] = loader.propertyPath + [currentKeyPath]
         return loader.generateKeyPath(fullPath)
     }
@@ -103,7 +102,7 @@ public struct Flag<Value: FlagProtocol>: FeatureFlagConfigurableProtocol, Identi
     internal private(set) var loader = LoaderBox()
     
     /// You can force a fixed key for a property instead of using auto-evaluation.
-    private var fixedKey: String?
+    public private(set) var fixedKey: String
     
     /// This is necessary in order to avoid mutable box.
     private var defaultValueBox = DefaultValueBox<Value>()
@@ -126,7 +125,7 @@ public struct Flag<Value: FlagProtocol>: FeatureFlagConfigurableProtocol, Identi
     ///                    provider in order.
     ///   - description: description of the proprerty; you are encouraged to provide a short description of the feature flag.
     public init(name: String? = nil,
-                key: String? = nil,
+                key: String,
                 default defaultValue: Value,
                 excludedProviders: [FlagsProvider.Type]? = nil,
                 computedValue: ComputedFlagClosure? = nil,
@@ -166,7 +165,7 @@ public struct Flag<Value: FlagProtocol>: FeatureFlagConfigurableProtocol, Identi
         let providersToQuery = providersWithTypes([providerType].compactMap({ $0 }))
         let keyPath = self.keyPath
         for provider in providersToQuery where isProviderAllowed(provider) {
-            if let value: Value = provider.valueForFlag(key: keyPath) {
+            if let value: Value = provider.valueForFlag(key: keyPath, defaultValueHint: self.defaultValue) {
                 // first valid result for provider is taken and returned
                 return (value, provider)
             }

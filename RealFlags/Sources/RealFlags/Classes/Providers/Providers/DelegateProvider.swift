@@ -59,7 +59,7 @@ public class DelegateProvider: FlagsProvider, Identifiable {
     
     // MARK: - Required Methods
     
-    public func valueForFlag<Value>(key: FlagKeyPath) -> Value? where Value: FlagProtocol {
+    public func valueForFlag<Value>(key: FlagKeyPath, defaultValueHint: Value) -> Value? where Value: FlagProtocol {
         delegate?.valueForFlag(key: key)
     }
     

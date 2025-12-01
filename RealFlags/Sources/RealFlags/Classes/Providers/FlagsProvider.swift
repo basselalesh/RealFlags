@@ -34,8 +34,8 @@ public protocol FlagsProvider {
     /// Fetch value for a specific flag.
     ///
     /// - Parameter key: key of the flag to retrive.
-    func valueForFlag<Value>(key: FlagKeyPath) -> Value? where Value: FlagProtocol
-    
+    func valueForFlag<Value>(key: FlagKeyPath, defaultValueHint: Value) -> Value? where Value: FlagProtocol
+
     /// Store a new value for a flag value.
     ///
     /// - Parameters:
