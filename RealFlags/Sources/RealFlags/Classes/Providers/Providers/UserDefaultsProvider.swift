@@ -41,7 +41,7 @@ extension UserDefaults: FlagsProvider {
     
     // MARK: - FlagsProvider Conformance
 
-    public func valueForFlag<Value>(key: FlagKeyPath) -> Value? where Value: FlagProtocol {
+    public func valueForFlag<Value>(key: FlagKeyPath, defaultValueHint: Value) -> Value? where Value: FlagProtocol {
         guard
             let rawObject = object(forKey: key.fullPath), // attempt to retrive the object from userdefault's apis
             let encodedFlag = EncodedFlagValue(object: rawObject, classType: Value.self) else {
